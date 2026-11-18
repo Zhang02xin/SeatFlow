@@ -1,0 +1,25 @@
+name: seatflow
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?请设置本地 MySQL root 密码}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-seatflow}
+      MYSQL_USER: ${MYSQL_USER:-seatflow}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?请设置本地 MySQL 应用用户密码}
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql --protocol=TCP --host=127.0.0.1 --user="$$MYSQL_USER" --database="$$MYSQL_DATABASE" --execute="SELECT 1"'
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  mysql_data:
